@@ -83,12 +83,13 @@ var VideoJS = Class.extend({
     this.buildPoster();
     this.showPoster();
 
-    this.buildController();
-    this.showController();
-
+   this.buildController();
+   this.showController();
+		
     // Position & show controls when data is loaded
     this.video.addEventListener("loadeddata", this.onLoadedData.context(this), false);
-
+ 	this.video.addEventListener("focus", this.onVideoFocus.context(this), false);
+	
     // Listen for when the video is played
     this.video.addEventListener("play", this.onPlay.context(this), false);
     // Listen for when the video is paused
@@ -106,6 +107,8 @@ var VideoJS = Class.extend({
 
     // Listen for clicks on the play/pause button
     this.playControl.addEventListener("click", this.onPlayControlClick.context(this), false);
+	this.playControl.addEventListener("keydown", this.onPlayControlKeyDown.context(this), false);
+	
     // Make a click on the video act like a click on the play button.
     this.video.addEventListener("click", this.onPlayControlClick.context(this), false);
     // Make a click on the poster act like a click on the play button.
@@ -116,17 +119,24 @@ var VideoJS = Class.extend({
     // Listen for a release on the progress bar
     this.progressHolder.addEventListener("mouseup", this.onProgressHolderMouseUp.context(this), false);
 
+	this.playProgress.addEventListener("keydown", this.onPlayProgressKeyDown.context(this), false);
+	
     // Set to stored volume OR 85%
     this.setVolume(localStorage.volume || this.options.defaultVolume);
     // Listen for a drag on the volume control
     this.volumeControl.addEventListener("mousedown", this.onVolumeControlMouseDown.context(this), false);
     // Listen for a release on the volume control
     this.volumeControl.addEventListener("mouseup", this.onVolumeControlMouseUp.context(this), false);
+    this.volumeControl.addEventListener("keydown", this.onVolumeControlKeyDown.context(this), false);
+
+	
     // Set the display to the initial volume
     this.updateVolumeDisplay();
 
     // Listen for clicks on the button
     this.fullscreenControl.addEventListener("click", this.onFullscreenControlClick.context(this), false);
+    this.fullscreenControl.addEventListener("keydown", this.onFullscreenControlKeyDown.context(this), false);
+
 
     // Listen for the mouse move the video. Used to reveal the controller.
     this.video.addEventListener("mousemove", this.onVideoMouseMove.context(this), false);
@@ -169,11 +179,11 @@ var VideoJS = Class.extend({
   buildController: function(){
 
     /* Creating this HTML
-      <ul class="vjs-controls">
-        <li class="vjs-play-control vjs-play">
+      <ul class="vjs-controls" role="application">
+        <li class="vjs-play-control vjs-play" role="button" tabindex="0">
           <span></span>
         </li>
-        <li class="vjs-progress-control">
+        <li class="vjs-progress-control" role="slider" tabindex="0">
           <ul class="vjs-progress-holder">
             <li class="vjs-load-progress"></li>
             <li class="vjs-play-progress"></li>
@@ -182,12 +192,12 @@ var VideoJS = Class.extend({
         <li class="vjs-time-control">
           <span class="vjs-current-time-display">00:00</span><span> / </span><span class="vjs-duration-display">00:00</span>
         </li>
-        <li class="vjs-volume-control">
+        <li class="vjs-volume-control" tabindex="0">
           <ul>
             <li></li><li></li><li></li><li></li><li></li><li></li>
           </ul>
         </li>
-        <li class="vjs-fullscreen-control">
+        <li class="vjs-fullscreen-control" role="button" tabindex="0">
           <ul>
             <li></li><li></li><li></li><li></li>
           </ul>
@@ -197,50 +207,82 @@ var VideoJS = Class.extend({
 
     // Create a list element to hold the different controls
     this.controls = _V_.createElement("ul", { className: "vjs-controls" });
+	this.controls.setAttribute("role","toolbar");
+	this.controls.setAttribute("aria-label","VIDEO PLAYER CONTROLS");
+	this.controls.setAttribute("tabindex","-1");
     // Add the controls to the video's container
     this.video.parentNode.appendChild(this.controls);
 
     // Build the play control
     this.playControl = _V_.createElement("li", { className: "vjs-play-control vjs-play", innerHTML: "<span></span>" });
-    this.controls.appendChild(this.playControl);
+    this.playControl.setAttribute("role","button");
+	this.playControl.setAttribute("aria-label","PLAY");
+	this.playControl.setAttribute("tabindex","0");
+	this.controls.appendChild(this.playControl);
 
     // Build the progress control
     this.progressControl = _V_.createElement("li", { className: "vjs-progress-control" });
+	this.progressControl.setAttribute('role', 'group');
     this.controls.appendChild(this.progressControl);
 
     // Create a holder for the progress bars
     this.progressHolder = _V_.createElement("ul", { className: "vjs-progress-holder" });
+	this.progressHolder.setAttribute('role', 'group');
     this.progressControl.appendChild(this.progressHolder);
 
     // Create the loading progress display
     this.loadProgress = _V_.createElement("li", { className: "vjs-load-progress" });
+	this.loadProgress.setAttribute('role', 'progressbar');
+	this.loadProgress.setAttribute('aria-label', 'LOAD PROGRESS');
+	this.loadProgress.setAttribute('aria-valuenow', 0);
+    this.loadProgress.setAttribute('aria-valuemin', 0);
+    this.loadProgress.setAttribute('aria-valuemax', this.video.duration);
+    this.loadProgress.setAttribute('aria-valuetext', Math.round(this.percentLoaded)+"%");
+	this.loadProgress.setAttribute('tabindex','-1');
     this.progressHolder.appendChild(this.loadProgress)
 
     // Create the playing progress display
     this.playProgress = _V_.createElement("li", { className: "vjs-play-progress" });
+	this.playProgress.setAttribute('role', 'slider');
+	this.playProgress.setAttribute('aria-label', 'SEEK BAR');
+	this.playProgress.setAttribute('aria-valuenow', this.video.currentTime);
+    this.playProgress.setAttribute('aria-valuemin', 0);
+    this.playProgress.setAttribute('aria-valuemax', this.video.duration);
+    this.playProgress.setAttribute('aria-valuetext', _V_.formatTime(this.video.currentTime)+ " of " + _V_.formatTime(this.video.duration) + " elapsed" );
+	this.playProgress.setAttribute('tabindex','0');
     this.progressHolder.appendChild(this.playProgress);
 
     // Create the progress time display (00:00 / 00:00)
     this.timeControl = _V_.createElement("li", { className: "vjs-time-control" });
+	this.timeControl.setAttribute('role', 'status');
+	this.timeControl.setAttribute('tabindex','-1');
     this.controls.appendChild(this.timeControl);
 
     // Create the current play time display
     this.currentTimeDisplay = _V_.createElement("span", { className: "vjs-current-time-display", innerHTML: "00:00" });
-    this.timeControl.appendChild(this.currentTimeDisplay);
+	this.timeControl.appendChild(this.currentTimeDisplay);
 
     // Add time separator
-    this.timeSeparator = _V_.createElement("span", { innerHTML: " / " });
+    this.timeSeparator = _V_.createElement("abbr", { innerHTML: " / " });
+	this.timeSeparator.setAttribute('title', 'of');
     this.timeControl.appendChild(this.timeSeparator);
 
     // Create the total duration display
     this.durationDisplay = _V_.createElement("span", { className: "vjs-duration-display", innerHTML: "00:00" });
-    this.timeControl.appendChild(this.durationDisplay);
+	this.timeControl.appendChild(this.durationDisplay);
 
     // Create the volumne control
     this.volumeControl = _V_.createElement("li", {
       className: "vjs-volume-control",
       innerHTML: "<ul><li></li><li></li><li></li><li></li><li></li><li></li></ul>"
     });
+	this.volumeControl.setAttribute('role', 'slider');
+	this.volumeControl.setAttribute('aria-label', 'VOLUME');
+	this.volumeControl.setAttribute('aria-valuemin', 0);
+    this.volumeControl.setAttribute('aria-valuemax', 1);
+	this.volumeControl.setAttribute('aria-valuenow', (localStorage.volume || this.options.defaultVolume));
+	this.volumeControl.setAttribute('aria-valuetext', Math.round((localStorage.volume || this.options.defaultVolume)*100)+"%");
+	this.volumeControl.setAttribute('tabindex','0');
     this.controls.appendChild(this.volumeControl);
     this.volumeDisplay = this.volumeControl.children[0]
 
@@ -249,6 +291,9 @@ var VideoJS = Class.extend({
       className: "vjs-fullscreen-control",
       innerHTML: "<ul><li></li><li></li><li></li><li></li></ul>"
     });
+	this.fullscreenControl.setAttribute('role', 'button');
+	this.fullscreenControl.setAttribute('aria-label', 'GO FULL SCREEN');
+	this.fullscreenControl.setAttribute('tabindex','0');
     this.controls.appendChild(this.fullscreenControl);
   },
 
@@ -379,6 +424,7 @@ var VideoJS = Class.extend({
   // When the video is played
   onPlay: function(event){
     this.playControl.className = "vjs-play-control vjs-pause";
+	this.playControl.setAttribute("aria-label","PAUSE");
     this.hidePoster();
     this.trackPlayProgress();
   },
@@ -386,6 +432,7 @@ var VideoJS = Class.extend({
   // When the video is paused
   onPause: function(event){
     this.playControl.className = "vjs-play-control vjs-play";
+	this.playControl.setAttribute("aria-label","PLAY");
     this.stopTrackingPlayProgress();
   },
 
@@ -406,6 +453,15 @@ var VideoJS = Class.extend({
 
   onLoadedData: function(event){
     this.showController();
+  },
+  
+  onVideoFocus: function(event){
+	this.videoHasFocus = true;
+    this.showController();
+  },
+  
+  onVideoBlur: function(event){
+	this.videoHasFocus = false;
   },
 
   // When the video's load progress is updated
@@ -441,6 +497,9 @@ var VideoJS = Class.extend({
   updateLoadProgress: function(){
     if (this.controls.style.display == 'none') return;
     this.loadProgress.style.width = (this.percentLoaded * (_V_.getComputedStyleValue(this.progressHolder, "width").replace("px", ""))) + "px";
+	this.loadProgress.setAttribute('aria-valuenow', this.percentLoaded*this.video.duration);
+    this.loadProgress.setAttribute('aria-valuemax', this.video.duration);
+   	this.loadProgress.setAttribute('aria-valuetext', Math.round(this.percentLoaded*100)+"%");	
   },
 
   // React to clicks on the play/pause button
@@ -451,7 +510,14 @@ var VideoJS = Class.extend({
       this.video.pause();
     }
   },
-
+  
+  // React to keydown events on the play/pause button
+  onPlayControlKeyDown: function(event){
+	if (event.keyCode == 32 || event.keyCode == 13) {
+		this.onPlayControlClick();
+	}
+  },
+  
   // Adjust the play position when the user drags on the progress bar
   onProgressHolderMouseDown: function(event){
     this.stopTrackingPlayProgress();
@@ -476,6 +542,7 @@ var VideoJS = Class.extend({
         this.video.play();
         this.trackPlayProgress();
       }
+	  this.playProgress.focus();
     }.context(this);
   },
 
@@ -483,6 +550,62 @@ var VideoJS = Class.extend({
   // Backup for when the user only clicks and doesn't drag
   onProgressHolderMouseUp: function(event){
     this.setPlayProgressWithEvent(event);
+	this.playProgress.focus();
+  },
+  
+  // React to keydown events on the play/pause button
+  onPlayProgressKeyDown: function(event){
+	var diff = 0;
+	switch(event.keyCode){
+		case 32:
+			if (this.video.paused) {
+			  this.video.play();
+			} else {
+			  this.video.pause();
+			}
+			break;
+		case 33:
+			// page up
+			diff = -60;
+			break;
+		case 34:
+			// page down
+			diff = 60;
+			break;
+		case 35:
+			// end
+			diff = (this.video.duration-this.video.currentTime);
+			break;
+		case 36:
+			// home
+			diff = -this.video.currentTime;
+			break;
+		case 37:
+			// left arrow
+			diff = -5;
+			break;
+		case 39:
+			// right arrow
+			diff = 5;
+			break;
+	}
+	if(diff!==0){
+		this.stopTrackingPlayProgress();
+	
+		if (this.video.paused) {
+		  this.videoWasPlaying = false;
+		} else {
+		  this.videoWasPlaying = true;
+		  this.video.pause();
+		}
+		var newTime = Math.max(0,Math.min(this.video.currentTime + diff, this.video.duration));
+		this.setPlayProgress(newTime / this.video.duration);
+		
+		if (this.videoWasPlaying) {
+			this.video.play();
+			this.trackPlayProgress();
+		}
+	}
   },
 
   // Adjust the volume when the user drags on the volume control
@@ -503,6 +626,34 @@ var VideoJS = Class.extend({
   onVolumeControlMouseUp: function(event){
     this.setVolumeWithEvent(event);
   },
+  
+  onVolumeControlKeyDown: function(event){
+	var diff = 0;
+	switch(event.keyCode){
+		case 32:
+			if (this.video.paused) {
+			  this.video.play();
+			} else {
+			  this.video.pause();
+			}
+			break;
+		case 40:
+		case 37:
+			// left/down arrow
+			diff = -1/6;
+			break;
+		case 38:
+		case 39:
+			// up/right arrow
+			diff =  1/6;
+			break;
+	}
+	var newVol = Math.max(0,Math.min(this.video.volume+diff, 1));
+	this.setVolume(newVol);
+	this.updateVolumeDisplay();
+	
+	
+  },
 
   // When the user clicks on the fullscreen button, update fullscreen setting
   onFullscreenControlClick: function(event){
@@ -511,6 +662,13 @@ var VideoJS = Class.extend({
     } else {
       this.fullscreenOff();
     }
+	
+  },
+  
+  onFullscreenControlKeyDown: function(event){
+	 if (event.keyCode == 32 || event.keyCode == 13) {
+		this.onFullscreenControlClick();
+	} 
   },
 
   onVideoMouseMove: function(event){
@@ -589,6 +747,8 @@ var VideoJS = Class.extend({
 
   // Update the displayed time (00:00)
   updateTimeDisplay: function(){
+	this.playProgress.setAttribute('aria-valuenow', this.video.currentTime);
+    this.playProgress.setAttribute('aria-valuetext', _V_.formatTime(this.video.currentTime));
     this.currentTimeDisplay.innerHTML = _V_.formatTime(this.video.currentTime);
     if (this.video.duration) this.durationDisplay.innerHTML = _V_.formatTime(this.video.duration);
   },
@@ -615,15 +775,20 @@ var VideoJS = Class.extend({
         _V_.removeClass(this.volumeDisplay.children[i], "vjs-volume-level-on");
       }
     }
+	this.volumeControl.setAttribute('aria-valuenow', this.video.volume);
+	this.volumeControl.setAttribute('aria-valuetext', Math.round(this.video.volume*100)+"%");
   },
 
   // Turn on fullscreen (window) mode
   // Real fullscreen isn't available in browsers quite yet.
   fullscreenOn: function(){
     if (!this.nativeFullscreenOn()) {
+		
       this.videoIsFullScreen = true;
-
-      // Storing original doc overflow value to return to when fullscreen is off
+	  
+	  this.fullscreenControl.setAttribute('aria-label', 'EXIT FULL SCREEN');
+      
+	  // Storing original doc overflow value to return to when fullscreen is off
       this.docOrigOverflow = document.documentElement.style.overflow;
 
       // Add listener for esc key to exit fullscreen
@@ -657,8 +822,10 @@ var VideoJS = Class.extend({
   // Turn off fullscreen (window) mode
   fullscreenOff: function(){
     this.videoIsFullScreen = false;
-
-    document.removeEventListener("keydown", this.onEscKey, false);
+	
+	this.fullscreenControl.setAttribute('aria-label', 'GO FULL SCREEN');
+    
+	document.removeEventListener("keydown", this.onEscKey, false);
     window.removeEventListener("resize", this.onWindowResize, false);
 
     // Unhide scroll bars.
