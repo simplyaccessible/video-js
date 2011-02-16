@@ -56,7 +56,7 @@ var VideoJS = JRClass.extend({
       playerFallbackOrder: ["html5", "flash", "links"], // Players and order to use them
       flashPlayer: "htmlObject",
       flashPlayerVersion: false, // Required flash version for fallback
-		subtitlesOn: false
+      subtitlesOn: false
     };
     // Override default options with global options
     if (typeof VideoJS.options == "object") { _V_.merge(this.options, VideoJS.options); }
@@ -432,18 +432,18 @@ VideoJS.player.extend({
 		
 
       // Build Interface
-		this.buildStylesCheckDiv(); // Used to check if style are loaded
+      this.buildStylesCheckDiv(); // Used to check if style are loaded
       this.buildAndActivatePoster();
       this.buildBigPlayButton();
       this.buildAndActivateSpinner();
-		this.getSubtitles();
+      this.getSubtitles();
       this.buildAndActivateControlBar();
       this.loadInterface(); // Show everything once styles are loaded
-		if (this.options.subtitlesOn){
-			this.subtitlesOn();
-		} else {
-			this.subtitlesOff();
-		}
+      if (this.options.subtitlesOn){
+            this.subtitlesOn();
+      } else {
+            this.subtitlesOff();
+      }
     }
   },
   /* Source Managemet
@@ -571,6 +571,11 @@ VideoJS.player.extend({
             <span></span><span></span><span></span><span></span><span></span><span></span>
           </div>
         </div>
+		  <div class="vjs-subtitles-control vjs-subtitles-on">
+          <div>
+            <span><span><abbr title="Closed Captions">CC</abbr></span></span>
+          </div>
+        </div>
         <div class="vjs-fullscreen-control">
           <div>
             <span></span><span></span><span></span><span></span>
@@ -610,11 +615,10 @@ VideoJS.player.extend({
     this.progressControl.appendChild(this.progressHolder);
     this.activateElement(this.progressHolder, "currentTimeScrubber");
 
-
     // Create the loading progress display
     this.loadProgressBar = _V_.createElement("div", { className: "vjs-load-progress" });
     this.loadProgressBar.setAttribute('role','progressbar');
-	 this.loadProgressBar.setAttribute('aria-controls',this.video.id);
+	this.loadProgressBar.setAttribute('aria-controls',this.video.id);
     this.loadProgressBar.setAttribute('aria-label','LOADED');
     this.loadProgressBar.setAttribute('aria-live','off');
     this.loadProgressBar.setAttribute('aria-valuemin',0);
@@ -651,9 +655,10 @@ VideoJS.player.extend({
     // Create the current play time display
     this.currentTimeDisplay = _V_.createElement("span", { className: "vjs-current-time-display", innerHTML: _V_.formatTime(this.currentTime()) });
     this.currentTimeDisplay.setAttribute('role','timer');
-	 this.currentTimeDisplay.setAttribute('aria-controls',this.video.id);
+    this.currentTimeDisplay.setAttribute('aria-controls',this.video.id);
     this.currentTimeDisplay.setAttribute('aria-label','CURRENT TIME');
     this.currentTimeDisplay.setAttribute('aria-valuetext',_V_.formatTime(this.currentTime()));
+
     this.timeControl.appendChild(this.currentTimeDisplay);
     this.activateElement(this.currentTimeDisplay, "currentTimeDisplay");
 
@@ -663,10 +668,10 @@ VideoJS.player.extend({
 
     // Create the total duration display
     this.durationDisplay = _V_.createElement("span", { className: "vjs-duration-display", innerHTML: _V_.formatTime(this.duration()) });
-	 this.durationDisplay.setAttribute('role','timer');
-	 this.durationDisplay.setAttribute('aria-controls',this.video.id);
-	 this.durationDisplay.setAttribute('aria-label','TOTAL TIME');
-	 this.durationDisplay.setAttribute('aria-valuetext',_V_.formatTime(this.duration()));
+    this.durationDisplay.setAttribute('role','timer');
+    this.durationDisplay.setAttribute('aria-controls',this.video.id);
+    this.durationDisplay.setAttribute('aria-label','TOTAL TIME');
+    this.durationDisplay.setAttribute('aria-valuetext',_V_.formatTime(this.duration()));
 	
     this.timeControl.appendChild(this.durationDisplay);
     this.activateElement(this.durationDisplay, "durationDisplay");
@@ -676,23 +681,23 @@ VideoJS.player.extend({
       className: "vjs-volume-control",
       innerHTML: "<div><span></span><span></span><span></span><span></span><span></span><span></span></div>"
     });
-	 this.volumeControl.setAttribute('role','slider');
-	 this.volumeControl.setAttribute('aria-controls',this.video.id);
-	 this.volumeControl.setAttribute('aria-label','VOLUME');
-	 this.volumeControl.setAttribute('aria-valuemin',0);
-	 this.volumeControl.setAttribute('aria-valuemax',1);
-	 this.volumeControl.setAttribute('aria-valuenow',this.volume());
-	 this.volumeControl.setAttribute('aria-valuetext',_V_.round(this.volume()*100)+"%");
-	 this.volumeControl.setAttribute('tabindex','0');
-	
+    this.volumeControl.setAttribute('role','slider');
+    this.volumeControl.setAttribute('aria-controls',this.video.id);
+    this.volumeControl.setAttribute('aria-label','VOLUME');
+    this.volumeControl.setAttribute('aria-valuemin',0);
+    this.volumeControl.setAttribute('aria-valuemax',1);
+    this.volumeControl.setAttribute('aria-valuenow',this.volume());
+    this.volumeControl.setAttribute('aria-valuetext',_V_.round(this.volume()*100)+"%");
+    this.volumeControl.setAttribute('tabindex','0');
+    
     this.controls.appendChild(this.volumeControl);
     this.activateElement(this.volumeControl, "volumeScrubber");
-	 this.activateElement(this.volumeControl, "focusVideoReporter");
+    this.activateElement(this.volumeControl, "focusVideoReporter");
 
     this.volumeDisplay = this.volumeControl.children[0];
     this.activateElement(this.volumeDisplay, "volumeDisplay");
 
- 	 // Create the subtitles control
+ 	// Create the subtitles control
     if(this.subtitlesDisplay){
 		 this.subtitlesControl = _V_.createElement("div", {
 			className: "vjs-subtitles-control vjs-subtitles-on",
@@ -707,17 +712,17 @@ VideoJS.player.extend({
 		 this.activateElement(this.subtitlesControl, "focusVideoReporter");
 	 }
 
-    // Crete the fullscreen control
-    this.fullscreenControl = _V_.createElement("div", {
-      className: "vjs-fullscreen-control",
-      innerHTML: "<div><span></span><span></span><span></span><span></span></div>"
-    });
+     // Create the fullscreen control
+     this.fullscreenControl = _V_.createElement("div", {
+       className: "vjs-fullscreen-control",
+       innerHTML: "<div><span></span><span></span><span></span><span></span></div>"
+     });
 	 this.fullscreenControl.setAttribute('role','button');
 	 this.fullscreenControl.setAttribute('aria-controls',this.video.id);
-	 this.fullscreenControl.setAttribute('aria-label','ENTER FULL SCREEN');
+ 	 this.fullscreenControl.setAttribute('aria-label','ENTER FULL SCREEN');
 	 this.fullscreenControl.setAttribute('tabindex','0');
-    this.controls.appendChild(this.fullscreenControl);
-    this.activateElement(this.fullscreenControl, "fullscreenToggle");
+	 this.controls.appendChild(this.fullscreenControl);
+	 this.activateElement(this.fullscreenControl, "fullscreenToggle");
 	 this.activateElement(this.fullscreenControl, "focusVideoReporter");
   },
   /* Poster Image
@@ -818,11 +823,10 @@ VideoJS.player.extend({
 				|| tracks[i].getAttribute("kind").indexOf("subtitle")!=-1 
 				|| tracks[i].getAttribute("kind").indexOf("caption")!=-1) 
 			   && tracks[i].getAttribute("src")) {
-        
         this.subtitlesSource = tracks[i].getAttribute("src");
         this.loadSubtitles();
         this.buildSubtitles();
-		  _V_.addClass(this.box,'vjs-subtitles-on');
+		_V_.addClass(this.box,'vjs-subtitles-on');
       }
     }
   },
@@ -863,7 +867,6 @@ VideoJS.player.extend({
         // Add this subtitle
         this.subtitles.push(subtitle);
       }
-		
     }
   },
 
@@ -887,7 +890,6 @@ VideoJS.player.extend({
     /* Creating this HTML
       <div class="vjs-subtitles"></div>
     */
-	 
     this.subtitlesDisplay = _V_.createElement("div", { className: 'vjs-subtitles' });
     this.box.appendChild(this.subtitlesDisplay);
     this.activateElement(this.subtitlesDisplay, "subtitlesDisplay");
@@ -1070,7 +1072,7 @@ VideoJS.player.extend({
 	  this.subtitlesControl.setAttribute('aria-label','SHOW CLOSED CAPTIONS');
 	  this.subtitlesControl.getElementsByTagName("abbr")[0].setAttribute('title','SHOW CLOSED CAPTIONS');
   }
-  
+
 });
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1212,8 +1214,6 @@ VideoJS.player.newBehavior("focusVideoReporter", function(element){
 	}
   }
 );
-
-
 /* Mouse Over Video Reporter Behaviors - i.e. Controls hiding based on mouse location
 ================================================================================ */
 VideoJS.player.newBehavior("box", function(element){
@@ -1283,11 +1283,11 @@ VideoJS.player.newBehavior("controlBar", function(element){
       this.each(this.controlBars, function(bar){
         bar.style.display = "block";
       });
-		if(this.subtitleDisplays){
-		 this.each(this.subtitleDisplays, function(disp){
-			 _V_.removeClass(disp,'vjs-controls-hidden');
-		 });
-	   }
+      if(this.subtitleDisplays){
+	      this.each(this.subtitleDisplays, function(disp){
+             _V_.removeClass(disp,'vjs-controls-hidden');
+	      });
+	  }
     },
     // Place controller relative to the video's position (now just resizing bars)
     positionControlBars: function(){
@@ -1299,12 +1299,12 @@ VideoJS.player.newBehavior("controlBar", function(element){
         this.each(this.controlBars, function(bar){
           bar.style.display = "none";
         });
-		  if(this.subtitleDisplays){
+		if(this.subtitleDisplays){
           this.each(this.subtitleDisplays, function(disp){
-				 _V_.removeClass(disp,'vjs-controls-hidden');
+             _V_.removeClass(disp,'vjs-controls-hidden');
              _V_.addClass(disp,'vjs-controls-hidden');
           });
-		  }
+        }
       }
     },
     // Block controls from hiding when mouse is over them.
@@ -1366,15 +1366,15 @@ VideoJS.player.newBehavior("playButton", function(element){
     _V_.addListener(element, "keydown", this.onPlayButtonKeyDown.context(this));
   },{
    onPlayButtonClick: function(event){ this.play(); },
-	onPlayButtonKeyDown: function(event){
-		switch(event.keyCode){
-			case 13:
-			case 32:
-				this.onPlayButtonClick(event);
-				this.focusVideoReporterOnFocus(event);
-				break;
-		}
-	}
+   onPlayButtonKeyDown: function(event){
+     switch(event.keyCode){
+		case 13:
+		case 32:
+		   this.onPlayButtonClick(event);
+		   this.focusVideoReporterOnFocus(event);
+		   break;
+     }
+   }
   }
 );
 // Pause
@@ -1384,7 +1384,7 @@ VideoJS.player.newBehavior("pauseButton", function(element){
 
   },{
     onPauseButtonClick: function(event){ this.pause(); },
-	 onPauseButtonKeyDown: function(event){ 
+	onPauseButtonKeyDown: function(event){ 
 		switch(event.keyCode){
 			case 13:
 			case 32:
@@ -1392,7 +1392,7 @@ VideoJS.player.newBehavior("pauseButton", function(element){
 				this.focusVideoReporterOnFocus(event);
 				break;
 		}
-	 }
+	}
   }
 );
 /* Play Progress Bar Behaviors
@@ -1481,9 +1481,8 @@ VideoJS.player.newBehavior("loadProgressBar", function(element){
 			var percent = _V_.round(this.bufferedPercent() * 100, 2);
 			bar.style.width = percent+ "%";
 			bar.setAttribute('aria-valuenow',percent);
-		    bar.setAttribute('aria-valuetext',percent+'%');
+			bar.setAttribute('aria-valuetext',percent+'%');
 		}
-		
       });
     }
   }
@@ -1593,7 +1592,6 @@ VideoJS.player.newBehavior("volumeDisplay", function(element){
       });
     },
     updateVolumeDisplay: function(display){
-		
       var volNum = Math.ceil(this.volume() * 6);
       this.each(display.children, function(child, num){
         if (num < volNum) {
@@ -1611,7 +1609,7 @@ VideoJS.player.newBehavior("volumeDisplay", function(element){
 ================================================================================ */
 VideoJS.player.newBehavior("volumeScrubber", function(element){
     _V_.addListener(element, "mousedown", this.onVolumeScrubberMouseDown.rEvtContext(this));
-	 _V_.addListener(element, "keydown", this.onVolumeScrubberKeyDown.rEvtContext(this));
+	_V_.addListener(element, "keydown", this.onVolumeScrubberKeyDown.rEvtContext(this));
   },{
     // Adjust the volume when the user drags on the volume control
     onVolumeScrubberMouseDown: function(event, scrubber){
@@ -1689,12 +1687,11 @@ VideoJS.player.newBehavior("subtitlesToggle", function(element){
 	 }
   }
 );
-
 /* Fullscreen Toggle Behaviors
 ================================================================================ */
 VideoJS.player.newBehavior("fullscreenToggle", function(element){
     _V_.addListener(element, "click", this.onFullscreenToggleClick.context(this));
-	 _V_.addListener(element, "keydown", this.fullscreenOnKeyDown.context(this));
+	_V_.addListener(element, "keydown", this.fullscreenOnKeyDown.context(this));
   },{
     // When the user clicks on the fullscreen button, update fullscreen setting
     onFullscreenToggleClick: function(event){
@@ -1722,7 +1719,6 @@ VideoJS.player.newBehavior("fullscreenToggle", function(element){
 				break;
 		}
 	}
-	
   }
 );
 /* Big Play Button Behaviors
@@ -1871,7 +1867,7 @@ VideoJS.player.newBehavior("subtitlesDisplay", function(element){
       this.each(this.subtitleDisplays, function(disp){
         disp.innerHTML = val;
       });
-    }	 
+    }
   }
 );
 
@@ -1965,7 +1961,6 @@ VideoJS.extend({
     request.open("GET",url);
     request.onreadystatechange = function() {
       if (request.readyState == 4 && request.status == 200) {
-		  
         onSuccess(request.responseText);
       }
     }.context(this);
