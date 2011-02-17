@@ -143,7 +143,7 @@ so you can upgrade to newer versions easier. */
 -------------------------------------------------------------------------------- */
 .vjs-play-control { cursor: pointer !important; }
 /* Play Icon */
-.vjs-play-control span { display: block; font-size: 1em; line-height: 0; }
+.vjs-play-control span { display: block; font-size: 1em; line-height: 0; text-indent: -9999em; }
 .vjs-paused .vjs-play-control span {
   width: 0; height: 0; margin: 0.8em 0 0 0.8em;
   /* Drawing the play triangle with borders - http://www.infimum.dk/HTML/slantinfo.html */
@@ -211,7 +211,7 @@ so you can upgrade to newer versions easier. */
 
 /* Subtitles control
 -------------------------------------------------------------------------------- */
-.vjs-controls .vjs-subtitles-control { font-size: 1em; line-height: 1em; font-weight: normal; font-family: Helvetica, Arial, sans-serif; }
+.vjs-controls .vjs-subtitles-control { cursor: pointer !important; font-size: 1em; line-height: 1em; font-weight: normal; font-family: Helvetica, Arial, sans-serif; }
 .vjs-controls .vjs-subtitles-control abbr { line-height: 1.2em; border:none; /* Centering vertically */ }
 .vjs-controls .vjs-subtitles-control span { display:block; border:0.25em solid #fff; position: relative; width: 1.6em; margin: 0.5em 0.25em;  text-align:center; }
 .vjs-controls .vjs-subtitles-control span span { border:0.2em solid #fff; position: relative; margin:-0.2em -0.2em; 
@@ -223,6 +223,7 @@ border-radius: 0.5em; /* Opera 10.5, IE 9 */
 /* Fullscreen
 -------------------------------------------------------------------------------- */
 .vjs-fullscreen-control { cursor: pointer !important; }
+.vjs-fullscreen-control span:first-child { float: left; text-indent: -9999em; }
 .vjs-fullscreen-control div {
   padding: 0; text-align: left; vertical-align: top; cursor: pointer !important; 
   margin: 0.5em 0 0 0.5em; /* Placement within the fullscreen control item */

@@ -715,7 +715,7 @@ VideoJS.player.extend({
      // Create the fullscreen control
      this.fullscreenControl = _V_.createElement("div", {
        className: "vjs-fullscreen-control",
-       innerHTML: "<div><span></span><span></span><span></span><span></span></div>"
+       innerHTML: "<span>Enter Full Screen</span><div><span></span><span></span><span></span><span></span></div>"
      });
 	 this.fullscreenControl.setAttribute('role','button');
 	 this.fullscreenControl.setAttribute('aria-controls',this.video.id);
@@ -751,7 +751,7 @@ VideoJS.player.extend({
     */
     this.bigPlayButton = _V_.createElement("div", {
       className: "vjs-big-play-button",
-      innerHTML: "<span></span>"
+      innerHTML: "<span>Play</span>"
     });
 	this.bigPlayButton.setAttribute('role','button');
 	this.bigPlayButton.setAttribute('aria-label','PLAY');
@@ -1001,6 +1001,7 @@ VideoJS.player.extend({
     } else {
       this.enterFullWindow();
     }
+    this.fullscreenControl.innerHTML = "<span>Exit Full Screen</span><div><span></span><span></span><span></span><span></span></div>"
 	this.fullscreenControl.setAttribute('aria-label','EXIT FULL SCREEN');
   },
 
@@ -1010,6 +1011,7 @@ VideoJS.player.extend({
     } else {
       this.exitFullWindow();
     }
+    this.fullscreenControl.innerHTML = "<span>Enter Full Screen</span><div><span></span><span></span><span></span><span></span></div>"
 	this.fullscreenControl.setAttribute('aria-label','ENTER FULL SCREEN');
   },
 
@@ -1348,6 +1350,7 @@ VideoJS.player.newBehavior("playToggle", function(element){
       this.each(this.elements.playToggles, function(toggle){
         _V_.removeClass(toggle, "vjs-paused");
         _V_.addClass(toggle, "vjs-playing");
+      	toggle.innerHTML = '<span>Pause</span>';
 		toggle.setAttribute('aria-label','PAUSE');
       });
     },
@@ -1355,6 +1358,7 @@ VideoJS.player.newBehavior("playToggle", function(element){
       this.each(this.elements.playToggles, function(toggle){
         _V_.removeClass(toggle, "vjs-playing");
         _V_.addClass(toggle, "vjs-paused");
+      	toggle.innerHTML = '<span>Play</span>';
 		toggle.setAttribute('aria-label','PLAY');
       });
     }
